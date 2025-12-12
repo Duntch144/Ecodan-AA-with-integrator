@@ -1,0 +1,163 @@
+substitutions:
+  status_three_way_valve: Status 3-weg klep
+  status_three_way_valve_2: Status 3-weg klep 2
+  heatpump_climate_dhw: DHW Thermostaat
+  dhw_temp: SWW huidige temp
+  dhw_secondary_temp: SWW 2e temp sensor
+  status_dhw_forced: Status SWW geforceerd
+  dhw_flow_temp_drop: SWW max temp hysterese
+  status_prohibit_dhw: Status SWW verboden
+  dhw_flow_temp_target: SWW setpoint waarde
+  status_dhw_eco: SWW Eco
+  esp_ip: Esp IP
+  internal_esp_temperature: Esp Interne temperatuur
+  esp_sidd: Esp SSID
+  uptime: Esp Uptime
+  esp_version: Esp Versie
+  restart_button: Esp herstart
+  status_in1_request: Status In1 thermostaat
+  status_in6_request: Status In6 thermostaat 2
+  status_in5_request: Status In5 buiten thermostaat
+  heatpump_select_dhw_mode: Set SWW modus
+  normal: Normaal
+  eco: Eco
+  version: ESP versie
+  led_brightness: Set Led helderheid
+  led_switch: Set Led schakelaar
+  heatpump_switch_force_dhw: Set forceer sww
+  heatpump_switch_power_mode: Set warmtepomp Aan/uit
+  heatpump_switch_holiday: Set vakantie modus
+  wifi_signal_proc: WiFi Signaal %
+  wifi_signal_db: WiFi Signaal dB
+  z1_flow_temp_target: Zone 1 flow setpoint waarde
+  status_prohibit_cool_z1: Status zone 1 verboden koelen
+  status_prohibit_heating_z1: Status zone 1 verboden verwarmen
+  heatpump_climate_z1: Zone 1 Aanvoertemp
+  heatpump_climate_room_z1: Zone 1 Kamertemp
+  z1_room_temp_target: Zone 1 ruimte setpoint waarde
+  z1_room_temp: Zone 1 ruimte temp
+  heatpump_number_z2_set_flow_temperature: Zone 2 flow setpoint
+  z2_flow_temp_target: Zone 2 flow setpoint waarde
+  status_prohibit_cool_z2: Status zone 2 verboden koelen
+  status_prohibit_heating_z2: Status zone 2 verboden verwarmen
+  heatpump_number_z2_set_room_temperature: Zone 2 ruimte setpoint
+  heatpump_climate_z2: Zone 2 Aanvoertemp
+  heatpump_climate_room_z2: Zone 2 Kamertemp
+  z2_room_temp_target: Zone 2 ruimte setpoint waarde
+  z2_room_temp: Zone 2 ruimte temp
+  mixing_tank_temp: Mixing Tank Temp
+  boiler_flow_temp: Boiler aanvoer temp
+  boiler_return_temp: Boiler retour temp
+  status_booster: Status booster heater
+  compressor_frequency: Compressor frequentie
+  status_compressor: Compressor
+  controller_version_text: Controller versie
+  controller_firmware_text: Controller Firmware
+  controller_datetime_text: Controller Datum
+  cool_consumed: Koelen verbruikt
+  cool_cop: Koelen cop
+  cool_delivered: Koelen geleverd
+  status_defrost: Status defrost
+  dhw_consumed: SWW verbruikt
+  dhw_cop: SWW cop
+  dhw_delivered: SWW geleverd
+  hp_feed_temp: Aanvoer temp
+  z1_feed_temp: Z1 Aanvoer temp
+  z2_feed_temp: Z2 Aanvoer temp
+  flow_rate: Flow waarde
+  heat_source_text: Verwarmings bron
+  heatpump: warmtepomp
+  immersion_heater: immersion heater
+  booster_heater: booster heater
+  immersion_and_booster_heater: immersion and booster heater
+  boiler: boiler
+  energy_consumed_increasing: Totaal verbruikt
+  heating_consumed: Verwarmen verbruikt
+  heating_cop: Verwarmen cop
+  heating_delivered: Verwarmen geleverd
+  status_holiday: Status vakantie
+  status_immersion: Status externe heater
+  legionella_prevention_temp: Legionella preventie temp
+  heatpump_select_operating_mode: Gekozen werking mode
+  heat_target_temperature: Verwarmen Ruimte
+  heat_flow_temperature: Verwarmen Flow
+  heat_compensation_curve: Verwarmen Curve
+  cool_target_temperature: Koelen Ruimte
+  cool_flow_temperature: Koelen Flow
+  floor_dry_up: Opstookprotocol
+  cool_compensation_curve: Koelen Curve
+  operation_off: "Uit"
+  hotwater: SWW
+  heating: Verwarmen
+  cooling: Koelen
+  frost_protection: Vorstbescherming
+  legionella_prevention: Legionellapreventie
+  runtime: Bedrijfsuren
+  status_operation: Status Bedrijf
+  output_power: Afgegeven vermogen
+  computed_output_power: Geschatte afgegeven vermogen
+  computed_cop: Geschatte COP
+  daily_computed_output_power: Geschatte afgegeven vermogen (Per dag)
+  daily_repported_input_power: Gerapporteerde opgenomen vermogen (Per dag)
+  outside_temp: Buiten temp
+  hp_refrigerant_temp: Koelmiddel temp
+  hp_refrigerant_condensing_temp: Koelmiddel condensatie temp
+  hp_return_temp: Retour temp
+  z1_return_temp: Z1 Retour temp
+  z2_return_temp: Z2 Retour temp
+  status_water_pump: Status water pomp
+  status_water_pump_2: Status water pomp 2
+  status_water_pump_3: Status water pomp 3
+  status_mixing_valve: Mixing Valve Status
+  mixing_valve_step: Mixing Valve Stap
+  status_multi_zone: Multizonestatus
+  status_multi_zone_idle: Inactief
+  status_multi_zone_both: Beide actief
+  status_multi_zone_zone1: Z1 actief
+  status_multi_zone_zone2: Z2 actief
+  fault_code_text: Fout code
+  refrigerant_error_code_text: Koelmiddel fout code
+  # refrigerant_code: Koudemiddel
+  compressor_starts: Compressor Starts
+  discharge_temp: Ontladingstemperatuur
+  ou_liquid_pipe_temp: Buitenunit Vloeistofleiding 1
+  ou_two_phase_pipe_temp: Buitenunit Tweefasenbuistemperatuur
+  fan_speed: Ventilatorsnelheid
+  ou_suction_pipe_temp: Buitenunit aanzuig leiding temperatuur
+  ou_heatsink_temp: Buitenunit koellichaam temperatuur
+  ou_compressor_surface_temp: Buitenunit Compressor Oppervlakte temperatuur
+  super_heat_temp: Discharge Superheat temperatuur
+  sub_cool_temp: Subcooling temperatuur
+  status_short_cycle_lockout: 'Kortcyclus: Vergrendeling'
+  minimum_compressor_on_time: 'Kortcyclus: Minimale looptijd compressor'
+  lockout_duration: 'Kortcyclus: Blokkeertijd (min)'
+  short_cycle_mitigation_button: 'Kortcyclus: Blokkering opheffen'
+  predictive_short_cycle_control_enabled: 'Kortcyclus: Pendeldetectie'
+  predictive_short_cycle_high_delta_time_window: 'Kortcyclus: Hoge Delta Duur'
+  predictive_short_cycle_high_delta_threshold: 'Kortcyclus: Drempelwaarde Hoge Delta'
+  status_predictive_boost_active: 'Kortcyclus: Voorspellende Boost Actief'
+  auto_adaptive_control_enabled: 'Auto-Adaptief: Regeling'
+  maximum_heating_flow_temp: 'Auto-Adaptief: Max. Aanvoertemperatuur Verw.'
+  minimum_heating_flow_temp: 'Auto-Adaptief: Min. Aanvoertemperatuur Verw.'
+  minimum_cooling_flow_temp: 'Auto-Adaptief: Min. Aanvoertemperatuur Koelen'
+  cooling_smart_start_temp: 'Auto-Adaptief: Koeling Smart Start Temp'
+  temperature_feedback_source: 'Auto-Adaptief: Bron Kamertemperatuur'
+  temperature_feedback_option_room: 'Kamerthermostaat'
+  select_feedback_option_api: 'Home Assistant / REST API'
+  heating_system_type: 'Auto-Adaptief: Type Verwarmingssysteem'
+  heating_system_type_option_ufh: 'Vloerverwarming'
+  heating_system_type_option_ufh_rad: 'Vloerverwarming + Radiatoren'
+  heating_system_type_option_rad: 'Radiatoren'
+  auto_adaptive_setpoint_bias: 'Auto-Adaptief: Setpoint Bias'
+  temperature_feedback: 'Auto-Adaptief: Terugkoppeling Huidige Kamertemperatuur'
+  defrost_risk_handling_enabled: 'Auto-Adaptief: Defrosts Beperken'
+  total_increasing_heating_consumed: Totaal Verbruik Verwarming
+  total_increasing_heating_delivered: Totaal Geleverd Verwarming
+  total_increasing_cool_consumed: Totaal Verbruik Koeling
+  total_increasing_cool_delivered: Totaal Geleverd Koeling
+  total_increasing_dhw_consumed: Totaal Verbruik Tapwater
+  total_increasing_dhw_delivered: Totaal Geleverd Tapwater
+  pump_speed: 'Pompsnelheid'
+  pump_feedback: 'Pompverbruik'
+  pump_feedback_status: 'Status Pompfeedback'
+  master_thermostat: 'Hoofd-Ruimtesensor'

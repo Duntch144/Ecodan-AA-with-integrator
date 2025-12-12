@@ -1,0 +1,336 @@
+substitutions:
+  update_interval_minutes: "5min"
+  z2_feed_assignment: "state.z2_feed_temp = nullptr;"
+
+esphome:
+  on_boot:
+      priority: 600
+      then:
+        - lambda: |-
+            using namespace esphome::optimizer;
+            OptimizerState state;
+            
+            state.ecodan_instance = id(ecodan_instance);
+
+            state.auto_adaptive_control_enabled = id(auto_adaptive_control_enabled);
+            state.predictive_short_cycle_control_enabled = id(predictive_short_cycle_control_enabled);
+            state.defrost_risk_handling_enabled = id(defrost_risk_handling_enabled);
+
+            state.status_short_cycle_lockout = id(status_short_cycle_lockout);
+            state.status_predictive_boost_active = id(status_predictive_boost_active);
+
+            state.operation_mode = id(operation_mode);
+            state.hp_feed_temp = id(hp_feed_temp);
+            state.z1_feed_temp = id(z1_feed_temp);
+            ${z2_feed_assignment}
+
+            state.heating_system_type = id(heating_system_type);
+            state.temperature_feedback_source = id(temperature_feedback_source);
+            state.lockout_duration = id(lockout_duration);
+            state.status_compressor = id(status_compressor);
+            state.status_defrost = id(status_defrost);
+
+            state.auto_adaptive_setpoint_bias = id(auto_adaptive_setpoint_bias);
+            state.temperature_feedback_z1 = id(temperature_feedback_z1);
+            state.temperature_feedback_z2 = id(temperature_feedback_z2);
+            state.maximum_heating_flow_temp = id(maximum_heating_flow_temp);
+            state.minimum_heating_flow_temp = id(minimum_heating_flow_temp);
+            state.maximum_heating_flow_temp_z2 = id(maximum_heating_flow_temp_z2);
+            state.minimum_heating_flow_temp_z2 = id(minimum_heating_flow_temp_z2);
+            state.minimum_cooling_flow_temp = id(minimum_cooling_flow_temp);
+            state.cooling_smart_start_temp = id(cooling_smart_start_temp);
+            state.minimum_compressor_on_time = id(minimum_compressor_on_time);
+            state.predictive_short_cycle_high_delta_time_window = id(predictive_short_cycle_high_delta_time_window);
+            state.predictive_short_cycle_high_delta_threshold = id(predictive_short_cycle_high_delta_threshold);
+            state.total_bias_sensor = id(optimizer_total_bias);
+            state.target_delta_t_sensor = id(optimizer_target_delta_t);
+            state.cold_factor_sensor = id(optimizer_cold_factor);
+
+
+
+            state.lockout_expiration_timestamp = &id(lockout_expiration_timestamp);
+            
+            // instantiate optimizer
+            id(optimizer_ptr) = new esphome::optimizer::Optimizer(state);
+            
+        - lambda: id(optimizer_ptr)->update_boost_sensor();
+        - lambda: id(optimizer_ptr)->check_lockout_expiration();
+
+# needed to trigger codegen
+optimizer:
+
+globals:
+  - id: optimizer_ptr
+    type: esphome::optimizer::Optimizer*
+  - id: lockout_expiration_timestamp
+    type: uint32_t
+    restore_value: yes
+    initial_value: '0'
+
+number:
+  - platform: template
+    id: maximum_heating_flow_temp
+    name: ${maximum_heating_flow_temp}
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 35.0
+    min_value: 25.0
+    max_value: 55.0
+    step: 0.5
+  - platform: template
+    id: minimum_heating_flow_temp
+    name: ${minimum_heating_flow_temp}
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 25.0
+    min_value: 24.0
+    max_value: 40.0
+    step: 0.5
+
+  - platform: template
+    id: maximum_heating_flow_temp_z2
+    name: ${maximum_heating_flow_temp} z2
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 35.0
+    min_value: 25.0
+    max_value: 55.0
+    step: 0.5
+  - platform: template
+    id: minimum_heating_flow_temp_z2
+    name: ${minimum_heating_flow_temp} z2
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 25.0
+    min_value: 24.0
+    max_value: 40.0
+    step: 0.5
+  
+  - platform: template
+    id: minimum_cooling_flow_temp
+    name: ${minimum_cooling_flow_temp}
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 18.0
+    min_value: 10.0
+    max_value: 25.0
+    step: 0.5
+  - platform: template
+    id: cooling_smart_start_temp
+    unit_of_measurement: "°C"
+    name: ${cooling_smart_start_temp}
+    optimistic: true
+    restore_value: true
+    initial_value: 19.0
+    min_value: 16.0
+    max_value: 22.0
+    step: 0.5
+  - platform: template
+    id: auto_adaptive_setpoint_bias
+    unit_of_measurement: "°C"
+    name: ${auto_adaptive_setpoint_bias}
+    optimistic: true
+    restore_value: true
+    initial_value: 0.0
+    min_value: -2.5
+    max_value: 2.5
+    step: 0.1
+  - platform: template
+    id: temperature_feedback_z1
+    name: ${temperature_feedback} z1
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 20.0
+    min_value: -50
+    max_value: 100
+    step: 0.1
+  - platform: template
+    id: temperature_feedback_z2
+    name: ${temperature_feedback} z2
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 20.0
+    min_value: -50
+    max_value: 100
+    step: 0.1
+
+  - platform: template
+    id: minimum_compressor_on_time
+    name: ${minimum_compressor_on_time}
+    optimistic: true
+    restore_value: true
+    initial_value: 5 # minutes
+    min_value: 1
+    max_value: 20
+    step: 1
+  - platform: template
+    id: predictive_short_cycle_high_delta_time_window
+    name: ${predictive_short_cycle_high_delta_time_window}
+    unit_of_measurement: "min"
+    optimistic: true
+    restore_value: true
+    initial_value: 4.0
+    min_value: 1.0
+    max_value: 5.0
+    step: 0.5
+  - platform: template
+    id: predictive_short_cycle_high_delta_threshold
+    name: ${predictive_short_cycle_high_delta_threshold}
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 1.0
+    min_value: 1.0
+    max_value: 3.0
+    step: 0.5
+
+select:
+  - platform: template
+    id: temperature_feedback_source
+    name: ${temperature_feedback_source}
+    optimistic: true
+    restore_value: true
+    options:
+      - "${temperature_feedback_option_room}"
+      - "${select_feedback_option_api}"
+    initial_option: "${temperature_feedback_option_room}"
+
+  - platform: template
+    id: heating_system_type
+    name: ${heating_system_type}
+    optimistic: true
+    restore_value: true
+    options:
+      - "${heating_system_type_option_ufh}"
+      - "${heating_system_type_option_ufh} *"
+      - "${heating_system_type_option_ufh_rad}"
+      - "${heating_system_type_option_ufh_rad} *"
+      - "${heating_system_type_option_rad}" 
+      - "${heating_system_type_option_rad} *"
+    initial_option: "${heating_system_type_option_ufh}"
+
+  - platform: template
+    id: lockout_duration
+    name: ${lockout_duration}
+    optimistic: true
+    restore_value: true
+    options:
+      - "0"
+      - "15"
+      - "30"
+      - "45"
+      - "60"
+    initial_option: "0"
+  
+switch:
+  - platform: template
+    name: ${auto_adaptive_control_enabled}
+    id: auto_adaptive_control_enabled
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+
+  - platform: template
+    name: ${predictive_short_cycle_control_enabled}
+    id: predictive_short_cycle_control_enabled
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+    turn_on_action:
+      - lambda: if (id(optimizer_ptr) != nullptr) id(optimizer_ptr)->reset_predictive_boost();
+    turn_off_action:
+      - lambda: if (id(optimizer_ptr) != nullptr) id(optimizer_ptr)->reset_predictive_boost();
+
+  - platform: template
+    name: ${defrost_risk_handling_enabled}
+    id: defrost_risk_handling_enabled
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+
+binary_sensor:
+  - platform: template
+    id: status_predictive_boost_active
+    name: ${status_predictive_boost_active}
+    lambda: |-
+      return (id(optimizer_ptr) == nullptr) ? false : id(optimizer_ptr)->get_predictive_boost_state();
+  - platform: ecodan
+    status_short_cycle_lockout:
+      id: status_short_cycle_lockout
+      name: ${status_short_cycle_lockout}
+
+button:
+  - platform: template
+    id: short_cycle_mitigation_button
+    name: ${short_cycle_mitigation_button}
+    on_press:
+      - logger.log:
+          level: INFO
+          format: "Lockout script cancelled by button"
+      - lambda: id(optimizer_ptr)->restore_svc_state();
+  # - platform: template
+  #   name: 'Auto-Adaptive: Run'
+  #   id: run_auto_adaptive_cycle
+  #   icon: "mdi:play-circle"
+  #   on_press:
+  #     then:
+  #     - lambda: |-
+  #         id(optimizer_ptr)->run_auto_adaptive_loop();
+
+  # - platform: template
+  #   name: "Short-Cycle: Start Compressor (Simulated)"
+  #   on_press:
+  #     - lambda: |-
+  #         id(status_compressor).publish_state(true);
+
+  # - platform: template
+  #   name: "Short-Cycle: Stop Compressor (Simulated)"
+  #   on_press:
+  #     - lambda: |-
+  #         id(status_compressor).publish_state(false);
+interval:
+  - interval: ${update_interval_minutes}
+    then:
+      - lambda: id(optimizer_ptr)->run_auto_adaptive_loop();
+  - interval: 30s
+    then:
+      - lambda: id(optimizer_ptr)->check_lockout_expiration();
+      - lambda: id(optimizer_ptr)->predictive_short_cycle_check();
+      - lambda: id(optimizer_ptr)->update_boost_sensor();
+
+# ----------------------------------------
+# ✅ NOUVEAU BLOC CAPTEUR  ✅
+# ----------------------------------------
+sensor:
+ - platform: template # ⬅️ CHANGEMENT CRUCIAL ICI
+   id: optimizer_total_bias
+   name: ${optimizer_total_bias}
+   unit_of_measurement: "°C"
+   accuracy_decimals: 2
+   device_class: "temperature"
+   state_class: "measurement"
+   force_update: true
+   retain: true 
+
+ - platform: template
+   id: optimizer_target_delta_t
+   name: ${optimizer_target_delta_t}
+   unit_of_measurement: "°C"
+   accuracy_decimals: 2
+   device_class: "temperature"
+   state_class: "measurement"
+   force_update: true
+   retain: true # Pour la persistance MQTT
+
+ - platform: template
+   id: optimizer_cold_factor
+   name: ${optimizer_cold_factor}
+   unit_of_measurement: "%"
+   accuracy_decimals: 1
+   state_class: "measurement"
+   force_update: true
+   retain: true # Pour la persistance MQTT

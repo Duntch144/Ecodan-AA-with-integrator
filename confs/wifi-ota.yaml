@@ -1,0 +1,9 @@
+wifi:
+  power_save_mode: high
+  reboot_timeout: 0s
+  ap:
+    ssid: "${name}"
+    password: "configesp"
+    ap_timeout: 15s
+
+<<: !include wifi-base.yaml

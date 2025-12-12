@@ -1,0 +1,163 @@
+substitutions:
+  status_three_way_valve: Valve 3-voies
+  status_three_way_valve_2: Valve 3-voies no 2
+  heatpump_climate_dhw: Thermostat ECS
+  dhw_temp: Temp actuelle ECS
+  dhw_secondary_temp: Temp ECS secondaire
+  status_dhw_forced: ECS Forcé
+  dhw_flow_temp_drop: Baisse temp max ECS
+  status_prohibit_dhw: ECS interdit
+  dhw_flow_temp_target: Temp cible ECS
+  status_dhw_eco: ECS Eco
+  esp_ip: ESP IP
+  internal_esp_temperature: Temp interne ESP
+  esp_sidd: ESP SSID
+  uptime: ESP Uptime
+  esp_version: ESP Version
+  restart_button: ESP Restart
+  status_in1_request: Thermostat Z1 (IN1)
+  status_in6_request: Thermostat Z2 (IN6)
+  status_in5_request: Thermostat Ext (IN5)
+  heatpump_select_dhw_mode: Mode ECS
+  normal: Normal
+  eco: Eco
+  version: ESP Version
+  led_brightness: Luminosité LED
+  led_switch: LED
+  heatpump_switch_force_dhw: Forcer ECS
+  heatpump_switch_power_mode: Pompe à chaleur
+  heatpump_switch_holiday: Mode vacances
+  wifi_signal_proc: Signal Wifi %
+  wifi_signal_db: Signal Wifi dB
+  z1_flow_temp_target: Temp cible Zone 1 C/F
+  status_prohibit_cool_z1: Zone 1 Clim Interdite
+  status_prohibit_heating_z1: Zone 1 Chauffage Interdit
+  heatpump_climate_z1: Zone 1 Temp. Départ
+  heatpump_climate_room_z1: Zone 1 Temp. Ambiante
+  z1_room_temp_target: Z1 Temp cible pièce
+  z1_room_temp: Z1 Temp pièce
+  heatpump_number_z2_set_flow_temperature: Temp cible Zone 2 C/F
+  z2_flow_temp_target: Temp cible Zone 2 C/F
+  status_prohibit_cool_z2: Zone 2 Clim Interdite
+  status_prohibit_heating_z2: Zone 2 Chauffage Interdit
+  heatpump_number_z2_set_room_temperature: Z2 Temp cible pièce
+  heatpump_climate_z2: Zone 2 Temp. Départ
+  heatpump_climate_room_z2: Zone 2 Temp. Ambiante
+  z2_room_temp_target: Z2 Temp cible pièce
+  z2_room_temp: Z2 Temp pièce
+  mixing_tank_temp: Température Mixing Tank
+  boiler_flow_temp: Temp départ ballon
+  boiler_return_temp: Temp retour ballon
+  status_booster: Statut réchauffeur élec
+  compressor_frequency: Freq Compresseur
+  status_compressor: Compresseur
+  controller_version_text: Version Controleur
+  controller_firmware_text: Firmware Controleur
+  controller_datetime_text: Date du Controleur
+  cool_consumed: Conso Clim
+  cool_cop: COP Clim
+  cool_delivered: Energ Délivrée Clim
+  status_defrost: Dégivrage
+  dhw_consumed: Conso ECS
+  dhw_cop: COP ECS
+  dhw_delivered: Energ Délivrée ECS
+  hp_feed_temp: Temp départ
+  z1_feed_temp: Z1 Temp départ
+  z2_feed_temp: Z2 Temp départ
+  flow_rate: Débit
+  heat_source_text: Source de chaleur
+  heatpump: Pompe à chaleur
+  immersion_heater: Thermoplongeur
+  booster_heater: Réchauffeur électrique
+  immersion_and_booster_heater: Thermoplongeur et Réchauffeur électrique
+  boiler: Ballon
+  energy_consumed_increasing: Énergie Totale Consommée
+  heating_consumed: Conso chauffage
+  heating_cop: COP Chauffage
+  heating_delivered: Energ Délivrée Chauffage
+  status_holiday: Mode Vacances
+  status_immersion: Thermoplongeur
+  legionella_prevention_temp: Temp Prévention Légionelle
+  heatpump_select_operating_mode: Mode sélectionné
+  heat_target_temperature: Temp cible Chauffage
+  heat_flow_temperature: Temp eau départ chauffage
+  heat_compensation_curve: Courbe de compensation
+  cool_target_temperature: Temp cible Clim
+  cool_flow_temperature: Temp eau départ clim
+  floor_dry_up: Séchage de la Chape
+  cool_compensation_curve: Courbe de Compensation de Refroidissement
+  operation_off: "Off"
+  hotwater: Eau chaude
+  heating: Chauffage
+  cooling: Climatisation
+  frost_protection: Protection contre le givre
+  legionella_prevention: Prévention Légionelle
+  runtime: Durée de fonctionnement
+  status_operation: Mode de fonctionnement
+  output_power: Puissance de sortie
+  computed_output_power: Puissance de sortie estimée
+  computed_cop: COP estimée
+  daily_computed_output_power: Puissance de sortie estimée (Tous les jours)
+  daily_repported_input_power: Consommation totale d'énergie quotidienne déclarée
+  outside_temp: Temp Ext
+  hp_refrigerant_temp: Temp Liquide Réfrigérant
+  hp_refrigerant_condensing_temp: Temp Condensation Liquide Réfrigérant
+  hp_return_temp: Temp retour
+  z1_return_temp: z1 Temp retour
+  z2_return_temp: z2 Temp retour
+  status_water_pump: Statut pompe à eau
+  status_water_pump_2: Statut pompe à eau no2
+  status_water_pump_3: Statut pompe à eau no3
+  status_mixing_valve: Mixing Valve Statut
+  mixing_valve_step: Mixing Valve étape
+  status_multi_zone: Multizone Statut
+  status_multi_zone_idle: Inactif
+  status_multi_zone_both: Les deux
+  status_multi_zone_zone1: Z1 fonctionne
+  status_multi_zone_zone2: Z2 fonctionne
+  fault_code_text: Code d'erreur
+  refrigerant_error_code_text: Réfrigérant code d'erreur
+  # refrigerant_code: Réfrigérant
+  compressor_starts: Démarrages cumulés du compresseur
+  discharge_temp: Température de décharge
+  ou_liquid_pipe_temp: Température du tuyau de liquide 1 de l'unité extérieure
+  ou_two_phase_pipe_temp: Température du tuyau biphasé de l'unité extérieure
+  fan_speed: Vitesse du ventilateur
+  ou_suction_pipe_temp: Température du tuyau d'aspiration de l'unité extérieure
+  ou_heatsink_temp: Température du dissipateur thermique de l'unité extérieure
+  ou_compressor_surface_temp: Température de surface du compresseur de l'unité extérieure
+  super_heat_temp: Température de surchauffe de décharge
+  sub_cool_temp: Température de sous-refroidissement
+  status_short_cycle_lockout: 'Court-circuit: Verrouillage'
+  minimum_compressor_on_time: 'Court-circuit: Durée minimale du compresseur'
+  cooling_smart_start_temp: 'Auto-Adaptatif: Temp. de Démarrage Intelligent Refroidissement'
+  lockout_duration: 'Court-circuit: Durée du verrouillage (min)'
+  short_cycle_mitigation_button: 'Court-circuit: Annuler le verrouillage'
+  predictive_short_cycle_control_enabled: 'Court-circuit: Prévention Prédictive'
+  predictive_short_cycle_high_delta_time_window: 'Court-circuit: Durée Delta Élevé'
+  predictive_short_cycle_high_delta_threshold: 'Court-circuit: Seuil Delta Élevé'
+  status_predictive_boost_active: 'Court-circuit: Boost Prédictif Actif'
+  auto_adaptive_control_enabled: 'Auto-Adaptatif: Commande'
+  maximum_heating_flow_temp: 'Auto-Adaptatif: Temp. Max. de Départ Chauffage'
+  minimum_heating_flow_temp: 'Auto-Adaptatif: Temp. Min. de Départ Chauffage'
+  minimum_cooling_flow_temp: 'Auto-Adaptatif: Temp. Min. de Départ Refroidissement'
+  temperature_feedback_source: 'Auto-Adaptatif: Source de Température Ambiante'
+  temperature_feedback_option_room: "Thermostat d'Ambiance"
+  select_feedback_option_api: 'Home Assistant / REST API'
+  heating_system_type: 'Auto-Adaptatif: Type de Système de Chauffage'
+  heating_system_type_option_ufh: 'Chauffage au Sol'
+  heating_system_type_option_ufh_rad: 'Chauffage au Sol + Radiateurs'
+  heating_system_type_option_rad: 'Radiateurs'
+  auto_adaptive_setpoint_bias: 'Auto-Adaptatif: Bias de Consigne'
+  temperature_feedback: 'Auto-Adaptatif: Retour de Température Ambiante Actuelle'
+  defrost_risk_handling_enabled: 'Auto-Adaptatif: Atténuation Dégivrage'
+  total_increasing_heating_consumed: Consommation Totale Chauffage
+  total_increasing_heating_delivered: Production Totale Chauffage
+  total_increasing_cool_consumed: Consommation Totale Refroidissement
+  total_increasing_cool_delivered: Production Totale Refroidissement
+  total_increasing_dhw_consumed: Consommation Totale ECS
+  total_increasing_dhw_delivered: Production Totale ECS
+  pump_speed: 'Vitesse de la Pompe'
+  pump_feedback: 'Consommation de la Pompe'
+  pump_feedback_status: 'État Retour Pompe'
+  master_thermostat: 'Capteur de Pièce Maître'

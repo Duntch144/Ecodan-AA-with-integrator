@@ -1,0 +1,174 @@
+substitutions:
+  status_three_way_valve: 3-way Valve
+  status_three_way_valve_2: 3-way Valve 2
+  heatpump_climate_dhw: DHW Climate
+  dhw_temp: DHW Current Temp
+  dhw_secondary_temp: DHW Secondary Temp
+  status_dhw_forced: DHW Forced
+  dhw_flow_temp_drop: DHW Max Temp Drop
+  status_prohibit_dhw: DHW Prohibit
+  dhw_flow_temp_target: DHW Setpoint Value
+  status_dhw_eco: DHW Eco
+  esp_ip: ESP IP
+  internal_esp_temperature: ESP Internal Temperature
+  esp_sidd: ESP SSID
+  uptime: ESP Uptime
+  esp_version: ESP Version
+  restart_button: ESP Restart
+  status_in1_request: In1 Thermostat
+  status_in6_request: In6 Thermostat 2
+  status_in5_request: In5 Outdoor Thermostat
+  heatpump_select_dhw_mode: DHW Mode
+  normal: Normal
+  eco: Eco
+  version: ESP Version
+  led_brightness: LED Brightness
+  led_switch: LED
+  heatpump_switch_force_dhw: Force DHW
+  heatpump_switch_power_mode: Heatpump
+  heatpump_switch_holiday: Holiday Mode
+  wifi_signal_proc: WiFi Signal %
+  wifi_signal_db: WiFi Signal dB
+  z1_flow_temp_target: Zone 1 H/C Setpoint Value
+  status_prohibit_cool_z1: Zone 1 Prohibit Cooling Status
+  status_prohibit_heating_z1: Zone 1 Prohibit Heating
+  heatpump_climate_z1: Zone 1 Flow Temp
+  heatpump_climate_room_z1: Zone 1 Room Temp
+  z1_room_temp_target: Zone 1 Room Setpoint Value
+  z1_room_temp: Zone 1 Room Temp
+  heatpump_number_z2_set_flow_temperature: Zone 2 H/C setpoint
+  z2_flow_temp_target: Zone 2 H/C Setpoint Value
+  status_prohibit_cool_z2: Zone 2 Prohibit Cooling
+  status_prohibit_heating_z2: Zone 2 Prohibit Heating
+  heatpump_number_z2_set_room_temperature: Zone 2 Room Setpoint
+  heatpump_climate_z2: Zone 2 Flow Temp
+  heatpump_climate_room_z2: Zone 2 Room Temp
+  z2_room_temp_target: Zone 2 Room Setpoint Value
+  z2_room_temp: Zone 2 Room Temp
+  mixing_tank_temp: Mixing Tank Temp
+  boiler_flow_temp: Boiler Flow Temp
+  boiler_return_temp: Boiler Return Temp
+  status_booster: Booster Heater
+  compressor_frequency: Compressor Frequency
+  status_compressor: Compressor
+  controller_version_text: Controller Version
+  controller_firmware_text: Controller Firmware
+  controller_datetime_text: Controller Date
+  cool_consumed: Cool Consumed
+  cool_cop: Cool COP
+  cool_delivered: Cool Delivered
+  status_defrost: Defrost
+  dhw_consumed: DHW Consumed
+  dhw_cop: DHW COP
+  dhw_delivered: DHW Delivered
+  hp_feed_temp: Feed Temp
+  z1_feed_temp: Z1 Feed Temp
+  z2_feed_temp: Z2 Feed Temp
+  flow_rate: Flow Rate
+  heat_source_text: Heat Source
+  heatpump: Heatpump
+  immersion_heater: Immersion Heater
+  booster_heater: Booster Heater
+  immersion_and_booster_heater: Immersion and Booster Heater
+  boiler: Boiler
+  energy_consumed_increasing: Total Energy Consumed
+  heating_consumed: Heating Consumed
+  heating_cop: Heating COP
+  heating_delivered: Heating Delivered
+  status_holiday: Holiday Mode
+  status_immersion: Immersion Heater
+  legionella_prevention_temp: Legionella Prevention Temp
+  heatpump_select_operating_mode: Selected operating mode
+  heat_target_temperature: Heat Target Temperature
+  heat_flow_temperature: Heat Flow Temperature
+  heat_compensation_curve: Heat Compensation Curve
+  cool_target_temperature: Cool Target Temperature
+  cool_flow_temperature: Cool Flow Temperature
+  floor_dry_up: Floor Dry Up
+  cool_compensation_curve: Cool Compensation Curve
+  operation_off: "Off"
+  hotwater: Heating Water
+  heating: Space Heating
+  cooling: Space Cooling
+  frost_protection: Frost Protection
+  legionella_prevention: Legionella Prevention
+  runtime: Operating Runtime
+  status_operation: Operation Mode
+  output_power: Output Power
+  computed_output_power: Estimated Output Power
+  computed_cop: Estimated COP
+  daily_computed_output_power: Estimated Total Daily Energy Produced
+  daily_repported_input_power: Reported Total Daily Energy Consumption
+  outside_temp: Outside Temp
+  hp_refrigerant_temp: Refrigerant Liquid Temp
+  hp_refrigerant_condensing_temp: Refrigerant Condensing Temp
+  hp_return_temp: Return Temp
+  z1_return_temp: Z1 Return Temp
+  z2_return_temp: Z2 Return Temp 
+  status_water_pump: Water Pump Status
+  status_water_pump_2: Water Pump 2 Status
+  status_water_pump_3: Water Pump 3 Status
+  status_mixing_valve: Mixing Valve Status
+  mixing_valve_step: Mixing Valve Step
+  status_multi_zone: Multi Zone Status
+  status_multi_zone_idle: Idle
+  status_multi_zone_both: Both
+  status_multi_zone_zone1: Z1 Working
+  status_multi_zone_zone2: Z2 Working
+  fault_code_text: Fault code
+  refrigerant_error_code_text: Refrigerant error code
+  # refrigerant_code: Refrigerant
+  compressor_starts: Accumulated Compressor Starts
+  discharge_temp: Discharge Temp
+  ou_liquid_pipe_temp: Outside Unit Liquid Pipe 1 Temp
+  ou_two_phase_pipe_temp: Outside Unit Two Phase Pipe Temp
+  ou_suction_pipe_temp: Outside Unit Suction Pipe Temp
+  ou_heatsink_temp: Outside Unit Heatsink Temp
+  ou_compressor_surface_temp: Outside Unit Compressor Surface Temp
+  super_heat_temp: Discharge Superheat Temp
+  sub_cool_temp: Subcooling Temp
+  fan_speed: Fan Speed
+  # short cycle translations
+  status_short_cycle_lockout: 'Short-Cycle: Lockout'
+  minimum_compressor_on_time: 'Short-Cycle: Minimum On-Time'
+  lockout_duration: 'Short-Cycle: Lockout Duration (min)'
+  short_cycle_mitigation_button: 'Short-Cycle: Cancel Lockout'
+  predictive_short_cycle_control_enabled: 'Short-Cycle: Predictive Prevention'
+  predictive_short_cycle_high_delta_time_window: 'Short-Cycle: High Delta Duration'
+  predictive_short_cycle_high_delta_threshold: 'Short-Cycle: High Delta Threshold'
+  status_predictive_boost_active: 'Short-Cycle: Predictive Boost Active'
+  # auto adaptive translations
+  auto_adaptive_control_enabled: 'Auto-Adaptive: Control'
+  maximum_heating_flow_temp: 'Auto-Adaptive: Max. Heating Flow Temperature'
+  minimum_heating_flow_temp: 'Auto-Adaptive: Min. Heating Flow Temperature'
+  minimum_cooling_flow_temp: 'Auto-Adaptive: Min. Cooling Flow Temperature'
+  cooling_smart_start_temp: 'Auto-Adaptive: Cooling Smart Start Temp'
+  temperature_feedback_source: 'Auto-Adaptive: Room Temperature source'
+  temperature_feedback_option_room: 'Room Thermostat'
+  select_feedback_option_api: 'Home Assistant / REST API'
+  heating_system_type: 'Auto-Adaptive: Heating System Type'
+  heating_system_type_option_ufh: 'Underfloor Heating'
+  heating_system_type_option_ufh_rad: 'Underfloor Heating + Radiators'
+  heating_system_type_option_rad: 'Radiators'
+  auto_adaptive_setpoint_bias: 'Auto-Adaptive: Setpoint Bias'
+  temperature_feedback: 'Auto-Adaptive: Current Room Temperature Feedback'
+  defrost_risk_handling_enabled: 'Auto-Adaptive: Defrost Mitigation'
+  optimizer_total_bias: 'Auto-Adaptive: Total Setpoint Bias'
+  optimizer_target_delta_t: 'Auto-Adaptive: Effective Delta T'
+  optimizer_cold_factor: 'Auto-Adaptive: Cold Factor'
+
+  # total increasing energy totals
+  total_increasing_heating_consumed: Total Heating Consumed
+  total_increasing_heating_delivered: Total Heating Delivered
+  total_increasing_cool_consumed: Total Cool Consumed
+  total_increasing_cool_delivered: Total Cool Delivered
+  total_increasing_dhw_consumed: Total DHW Consumed
+  total_increasing_dhw_delivered: Total DHW Delivered
+
+  # pump details
+  pump_speed: Pump Speed
+  pump_feedback: Pump Consumption
+  pump_feedback_status: Pump Feedback Status
+
+  # master thermostats
+  master_thermostat: Master Room Sensor
