@@ -327,26 +327,60 @@ namespace esphome
                     bool apply_step = true;
 
                     // --- prospective target check: avoid integrating if the
-                    // resulting target delta-T would be pinned at profile min or max.
+                    // resulting target delta-T would be pinned at profile limits.
+
+                    // --- prospective target check: avoid integrating if the
+                    // resulting target delta-T would be pinned at profile limits.
                     const float DELTA_LIMIT_EPS = 0.01f;
+                    
+                    // 1. Calcul de l'intégrale et de l'erreur future
                     float prospective_integral = this->integral_error_z1_ + (raw_error * INTEGRAL_GAIN);
-                    float prospective_total_bias = setpoint_bias + prospective_integral;
-                    float prospective_room_target = room_target_temp + prospective_total_bias;
-                    bool use_linear_error_local = (heating_type_index % 2 != 0);
-                    float prospective_error = is_heating_mode ? (prospective_room_target - room_temp)
-                                                              : (room_temp - prospective_room_target);
-                    float prospective_error_positive = fmax(prospective_error, 0.0f);
-                    float prospective_error_normalized = prospective_error_positive / max_error_range;
+                    ESP_LOGD(OPTIMIZER_TAG, "Prospective integral: %.3f", prospective_integral);
+                    float prospective_error = raw_error + prospective_integral; // Erreur totale estimée
+                    ESP_LOGD(OPTIMIZER_TAG, "Prospective error: %.3f", prospective_error);
+                    
+                
+                    // 2. Gestion du signe (CRUCIAL : C'est ce qui manquait !)
+                    // On garde le signe pour savoir si on veut augmenter ou baisser le Delta T
+                    float prospective_error_sign = (prospective_error > 0.0f) ? 1.0f : ((prospective_error < 0.0f) ? -1.0f : 0.0f);
+                    
+                    // 3. Calcul du facteur d'erreur (Profile) sur la valeur absolue
+                    float prospective_error_abs = fabs(prospective_error); 
+                    float prospective_error_normalized = prospective_error_abs / max_error_range;
                     float prospective_x = fmin(prospective_error_normalized, 1.0f);
-                    float prospective_error_factor = use_linear_error_local ? prospective_x : prospective_x * prospective_x * (3.0f - 2.0f * prospective_x);
+                    
+                    bool use_linear_error_local = (heating_type_index % 2 != 0);
+                    float prospective_profile = use_linear_error_local ? prospective_x : prospective_x * prospective_x * (3.0f - 2.0f * prospective_x);
+                    
+                    // 4. Réapplication du signe
+                    float prospective_error_factor = prospective_profile * prospective_error_sign;
+
+                    // 5. Calcul du Delta T prospectif
                     float prospective_dynamic_min_delta_t = base_min_delta_t + (cold_factor * (min_delta_cold_limit - base_min_delta_t));
                     float prospective_target_delta_t = prospective_dynamic_min_delta_t + prospective_error_factor * (max_delta_t - prospective_dynamic_min_delta_t);
-                    if (prospective_target_delta_t <= (prospective_dynamic_min_delta_t + DELTA_LIMIT_EPS) || prospective_target_delta_t >= (max_delta_t - DELTA_LIMIT_EPS)) {
-                        ESP_LOGV(OPTIMIZER_TAG, "Integrator prospective delta-T out of range: %.3f (min %.3f / max %.3f)", prospective_target_delta_t, prospective_dynamic_min_delta_t + DELTA_LIMIT_EPS, max_delta_t - DELTA_LIMIT_EPS);
+                    
+                    // Log pour vérification (doit afficher < 2.60 maintenant si l'erreur est négative)
+                    ESP_LOGD(OPTIMIZER_TAG, "Prospective delta-T: %.3f (min %.3f)", prospective_target_delta_t, base_min_delta_t);
+                    
+                    // 6. Logique de blocage (Anti-Windup)
+                    // Cas 1 : Saturation Haute (On dépasse le max et on monte encore)
+                    if (prospective_target_delta_t >= (max_delta_t - DELTA_LIMIT_EPS) && integration_step > 0) {
+                        ESP_LOGD(OPTIMIZER_TAG, "Anti-Windup: Prospective Delta-T > Max (%.3f), pausing increase.", max_delta_t);
+                        apply_step = false;
+                    }
+                    // Cas 2 : Saturation Basse (On est sous le min système et on descend encore)
+                    // Note: base_min_delta_t est le plancher absolu du système (ex: 2.0)
+                    else if (prospective_target_delta_t <= (base_min_delta_t + DELTA_LIMIT_EPS) && integration_step < 0) {
+                        ESP_LOGD(OPTIMIZER_TAG, "Anti-Windup: Prospective Delta-T < Min (%.3f), pausing decrease.", base_min_delta_t);
                         apply_step = false;
                     }
 
 
+                    
+                    // Note : Si on est hors limites mais que l'étape nous ramène vers la plage valide (ex: step positif alors qu'on est au min),
+                    // apply_step reste 'true', ce qui est le comportement désiré.
+
+                    // --- FIN DE LA CORRECTION ---
 
                     // Détection de saturation en CHAUFFAGE
 
@@ -360,7 +394,7 @@ namespace esphome
 
                             apply_step = false;
 
-                            ESP_LOGV(OPTIMIZER_TAG, "Anti-Windup: Max flow reached (%.1f >= %.1f), pausing integrator increase.", actual_flow_temp, zone_max_flow_temp);
+                            ESP_LOGD(OPTIMIZER_TAG, "Anti-Windup: Max flow reached (%.1f >= %.1f), pausing integrator increase.", actual_flow_temp, zone_max_flow_temp);
 
                         }
 
@@ -370,7 +404,7 @@ namespace esphome
 
                             apply_step = false;
 
-                            ESP_LOGV(OPTIMIZER_TAG, "Anti-Windup: Min flow reached (%.1f <= %.1f), pausing integrator decrease.", actual_flow_temp, zone_min_flow_temp);
+                            ESP_LOGD(OPTIMIZER_TAG, "Anti-Windup: Min flow reached (%.1f <= %.1f), pausing integrator decrease.", actual_flow_temp, zone_min_flow_temp);
 
                         }
 
@@ -771,7 +805,7 @@ namespace esphome
 
                 // UFH
 
-                base_min_delta_t = 1.5f;
+                base_min_delta_t = 2.0f;
 
                 min_delta_cold_limit = 4.0f;
 
