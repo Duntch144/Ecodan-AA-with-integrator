@@ -82,7 +82,10 @@ namespace esphome
       uint32_t last_defrost_time_ = 0;
       float predictive_short_cycle_total_adjusted_ = 0.0f;
 
-
+      // PID - Derivative Term variables
+      float last_room_temp_z1_{NAN};
+      uint32_t last_derivative_time_{0};
+      float derivative_term_{0.0f};
       
       float integral_error_z1_{0.0f};
       esphome::ESPPreferenceObject integral_pref_;
