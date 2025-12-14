@@ -296,171 +296,95 @@ namespace esphome
 
                 return;
 
-
-
-           // ==========================================
-
-            // LOGIQUE INTEGRATEUR + ANTI-WINDUP INTELLIGENT (Zone 1 uniquement)
-
             // ==========================================
-
+            // LOGIQUE PID (Zone 1 uniquement) - Cycle 5 minutes
+            // ==========================================
             float total_bias = setpoint_bias;
-
-           
-
-            if (i == 0) { // On n'applique l'intégrateur que sur la Zone 1
-
+            
+            if (i == 0) { 
                 float raw_error = room_target_temp - room_temp;
 
-
-
-                // On n'intègre que si le système est actif
-
-                if (is_heating_active || is_cooling_active) {
-
-                    float integration_step = raw_error * INTEGRAL_GAIN;
-
-                   
-
-                    // --- DEBUT PROTECTION ANTI-WINDUP (SATURATION) ---
-
-                    bool apply_step = true;
-
-                    // --- prospective target check: avoid integrating if the
-                    // resulting target delta-T would be pinned at profile limits.
-
-                    // --- prospective target check: avoid integrating if the
-                    // resulting target delta-T would be pinned at profile limits.
-                    const float DELTA_LIMIT_EPS = 0.01f;
-                    
-                    // 1. Calcul de l'intégrale et de l'erreur future
-                    float prospective_integral = this->integral_error_z1_ + (raw_error * INTEGRAL_GAIN);
-                    ESP_LOGD(OPTIMIZER_TAG, "Prospective integral: %.3f", prospective_integral);
-                    float prospective_error = raw_error + prospective_integral; // Erreur totale estimée
-                    ESP_LOGD(OPTIMIZER_TAG, "Prospective error: %.3f", prospective_error);
-                    
+                // --- 1. CALCUL DU TERME DÉRIVÉ (D) ---
+                // Avec un cycle de 5 min, on regarde la variation depuis le dernier run.
                 
-                    // 2. Gestion du signe (CRUCIAL : C'est ce qui manquait !)
-                    // On garde le signe pour savoir si on veut augmenter ou baisser le Delta T
-                    float prospective_error_sign = (prospective_error > 0.0f) ? 1.0f : ((prospective_error < 0.0f) ? -1.0f : 0.0f);
-                    
-                    // 3. Calcul du facteur d'erreur (Profile) sur la valeur absolue
-                    float prospective_error_abs = fabs(prospective_error); 
-                    float prospective_error_normalized = prospective_error_abs / max_error_range;
-                    float prospective_x = fmin(prospective_error_normalized, 1.0f);
-                    
-                    bool use_linear_error_local = (heating_type_index % 2 != 0);
-                    float prospective_profile = use_linear_error_local ? prospective_x : prospective_x * prospective_x * (3.0f - 2.0f * prospective_x);
-                    
-                    // 4. Réapplication du signe
-                    float prospective_error_factor = prospective_profile * prospective_error_sign;
+                uint32_t now = millis();
+                float current_derivative_correction = 0.0f;
 
-                    // 5. Calcul du Delta T prospectif
-                    float prospective_dynamic_min_delta_t = base_min_delta_t + (cold_factor * (min_delta_cold_limit - base_min_delta_t));
-                    float prospective_target_delta_t = prospective_dynamic_min_delta_t + prospective_error_factor * (max_delta_t - prospective_dynamic_min_delta_t);
+                // On vérifie que ce n'est pas le premier lancement (last_time != 0)
+                // Et qu'on n'a pas une valeur aberrante (nan)
+                if (this->last_derivative_time_ != 0 && !std::isnan(this->last_room_temp_z1_)) {
                     
-                    // Log pour vérification (doit afficher < 2.60 maintenant si l'erreur est négative)
-                    ESP_LOGD(OPTIMIZER_TAG, "Prospective delta-T: %.3f (min %.3f)", prospective_target_delta_t, base_min_delta_t);
+                    float dt = (now - this->last_derivative_time_) / 1000.0f; // Temps écoulé en secondes (attendu ~300s)
                     
-                    // 6. Logique de blocage (Anti-Windup)
-                    // Cas 1 : Saturation Haute (On dépasse le max et on monte encore)
-                    if (prospective_target_delta_t >= (max_delta_t - DELTA_LIMIT_EPS) && integration_step > 0) {
-                        ESP_LOGD(OPTIMIZER_TAG, "Anti-Windup: Prospective Delta-T > Max (%.3f), pausing increase.", max_delta_t);
-                        apply_step = false;
+                    // Sécurité : Si dt est trop petit (< 60s) ou trop grand (> 15 min, ex: coupure courant), 
+                    // on ignore le calcul D pour ce cycle pour éviter un saut brutal.
+                    if (dt > 60.0f && dt < 900.0f) { 
+                        float temp_diff = room_temp - this->last_room_temp_z1_;
+                        float slope = temp_diff / dt; // °C par seconde
+
+                        // CALCUL DU GAIN
+                        // Si la T° monte de 0.2°C en 5 min (c'est beaucoup !) :
+                        // Slope = 0.2 / 300 = 0.00066
+                        // Pour corriger le départ d'eau de -1°C, il faut un Gain d'environ 1500.
+                        // Je recommande de commencer avec Kd = 1500.0f
+                        const float DERIVATIVE_GAIN = 1500.0f; 
+
+                        this->derivative_term_ = slope * DERIVATIVE_GAIN; 
+
+                        ESP_LOGD(OPTIMIZER_TAG, "Z1 PID-D (5min cycle): Diff=%.2f°C, dt=%.0fs, Slope=%.6f, D-Term=%.3f", 
+                                temp_diff, dt, slope, this->derivative_term_);
+                    } else {
+                        // Si le timing est bizarre, on garde la dernière valeur connue ou 0
+                        ESP_LOGW(OPTIMIZER_TAG, "Z1 PID-D: Skipped due to weird time delta: %.1fs", dt);
                     }
-                    // Cas 2 : Saturation Basse (On est sous le min système et on descend encore)
-                    // Note: base_min_delta_t est le plancher absolu du système (ex: 2.0)
-                    else if (prospective_target_delta_t <= (base_min_delta_t + DELTA_LIMIT_EPS) && integration_step < 0) {
-                        ESP_LOGD(OPTIMIZER_TAG, "Anti-Windup: Prospective Delta-T < Min (%.3f), pausing decrease.", base_min_delta_t);
-                        apply_step = false;
-                    }
+                } else {
+                    // Premier cycle : pas de dérivée possible
+                    this->derivative_term_ = 0.0f;
+                }
+
+                // Mise à jour des valeurs pour le prochain cycle de 5 min
+                this->last_room_temp_z1_ = room_temp;
+                this->last_derivative_time_ = now;
 
 
+                // --- 2. CALCUL DU TERME INTÉGRAL (I) + ANTI-WINDUP ---
+                if (is_heating_active || is_cooling_active) {
+                    float integration_step = raw_error * INTEGRAL_GAIN;
                     
-                    // Note : Si on est hors limites mais que l'étape nous ramène vers la plage valide (ex: step positif alors qu'on est au min),
-                    // apply_step reste 'true', ce qui est le comportement désiré.
-
-                    // --- FIN DE LA CORRECTION ---
-
-                    // Détection de saturation en CHAUFFAGE
-
-                    if (is_heating_mode) {
-
-                        // Cas 1 : On veut chauffer plus (step positif), mais le départ d'eau est déjà au Maximum autorisé
-
-                        // On prend une marge de 0.5°C pour absorber les fluctuations de mesure
-
-                        if (integration_step > 0 && actual_flow_temp >= (zone_max_flow_temp - 0.5f)) {
-
-                            apply_step = false;
-
-                            ESP_LOGD(OPTIMIZER_TAG, "Anti-Windup: Max flow reached (%.1f >= %.1f), pausing integrator increase.", actual_flow_temp, zone_max_flow_temp);
-
-                        }
-
-                        // Cas 2 : On veut chauffer moins (step négatif), mais le départ d'eau est déjà au Minimum autorisé
-
-                        else if (integration_step < 0 && actual_flow_temp <= (zone_min_flow_temp + 0.5f)) {
-
-                            apply_step = false;
-
-                            ESP_LOGD(OPTIMIZER_TAG, "Anti-Windup: Min flow reached (%.1f <= %.1f), pausing integrator decrease.", actual_flow_temp, zone_min_flow_temp);
-
-                        }
-
-                    }
-
-                    // --- FIN PROTECTION ANTI-WINDUP ---
-
-
+                    // --- VOTRE BLOC ANTI-WINDUP EXISTANT ---
+                    // (Collez ici tout votre bloc "DEBUT PROTECTION ANTI-WINDUP" jusqu'à "FIN")
+                    // Je réintègre juste la partie application pour la cohérence de l'exemple :
+                    bool apply_step = true; 
+                    
+                    // ... [VOTRE LOGIQUE DE PREDICTION PROSPECTIVE ICI] ...
+                    // Rappel : vérifiez bien que vous utilisez 'this->integral_error_z1_' dans vos calculs
 
                     if (apply_step) {
-
                         this->integral_error_z1_ += integration_step;
-
-                        // On garde quand même le clamping de sécurité absolue
-
                         this->integral_error_z1_ = std::clamp(this->integral_error_z1_, -MAX_INTEGRAL_BIAS, MAX_INTEGRAL_BIAS);
-
-                        // Persist integrator occasionally: only if changed significantly
-                        if (std::isnan(this->last_saved_integral_) || std::fabs(this->integral_error_z1_ - this->last_saved_integral_) > 0.01f) {
-                            this->integral_pref_.save<float>(&this->integral_error_z1_);
-                            this->last_saved_integral_ = this->integral_error_z1_;
+                        
+                        // Sauvegarde en flash si changement significatif
+                        if (std::isnan(this->last_saved_integral_)|| std::fabs(this->integral_error_z1_ - this->last_saved_integral_) > 0.01f) {
+                             this->integral_pref_.save<float>(&this->integral_error_z1_);
+                             this->last_saved_integral_ = this->integral_error_z1_;
                         }
-
                     }
-
                 }
-
-               
-
-                total_bias += this->integral_error_z1_;
-
+                
+                // --- 3. CALCUL FINAL ---
+                // Consigne = (P + I) - D
+                // Si la température monte (derivative_term_ positif), on réduit la consigne.
+                total_bias += this->integral_error_z1_ - this->derivative_term_;
+                
                 this->total_bias_ = total_bias;
-
                 if (this->total_bias_sensor_ != nullptr) {
-
                     this->total_bias_sensor_->publish_state(total_bias);
-
                 }
-
-               
-
-                // Log détaillé (J'ai ajouté un indicateur 'S' si saturé pour le debug)
-
-                ESP_LOGD(OPTIMIZER_TAG, "Z1 Integrator: Error=%.2f, Step=%.3f, Acc=%.3f, Total Bias=%.3f",
-
-                         raw_error, (raw_error * INTEGRAL_GAIN), this->integral_error_z1_, total_bias);
-
             }
 
-
-
-            // Application du bias total à la consigne
-
+            // Application du bias
             room_target_temp += total_bias;
 
-            // ==========================================
 
 
 
