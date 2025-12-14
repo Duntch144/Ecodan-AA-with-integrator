@@ -177,7 +177,7 @@ void Optimizer::process_adaptive_zone_(
                 // GAIN CALCULATION
                 // If Temp rises by 0.2°C in 5 min: Slope = 0.2 / 300 = 0.00066
                 // To correct flow temp by -1°C, we need a Gain of approx 1500.
-                const float DERIVATIVE_GAIN = 1500.0f;
+                const float DERIVATIVE_GAIN = 200.0f;
 
                 this->derivative_term_ = slope * DERIVATIVE_GAIN;
 

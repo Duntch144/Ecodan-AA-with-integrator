@@ -13,16 +13,16 @@ ota:
 #  password: !secret heatpump_ota_password
 
 mqtt:
-  broker: 192.168.50.160
-  username: jeedom
-  password: OR97XCLYtOMVBs8BnGpJgUqlbxc1YWqu4GucmTGbG4MNjC8lHF2XxZU2Vut5HFVS
-  log_topic: ecodan-heatpump/logs
+  broker: !secret mqtt_broker
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  log_topic: !secret mqtt_log_topic
 
 
 api:
   reboot_timeout: 0s
-#  encryption:
-#    key: !secret heatpump_encryption_key
+  encryption:
+    key: !secret heatpump_encryption_key  # TODO: define this secret in secrets.yaml
 
 # uncomment if you have multiple esp running
 # esphome:
