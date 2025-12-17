@@ -33,6 +33,9 @@ namespace esphome
       esphome::switch_::Switch *auto_adaptive_control_enabled;
       esphome::switch_::Switch *predictive_short_cycle_control_enabled;
       esphome::switch_::Switch *defrost_risk_handling_enabled;
+      esphome::number::Number *sg_overheat_offset{nullptr}; // Le seuil réglable (0.7°C)
+      esphome::switch_::Switch *sg_mode_off{nullptr};      // Switch Mode OFF (Coupe compresseur)
+      esphome::switch_::Switch *sg_mode_reco{nullptr};     // Switch Mode RECO (Pour usage futur)
 
       esphome::binary_sensor::BinarySensor *status_short_cycle_lockout;
       esphome::binary_sensor::BinarySensor *status_predictive_boost_active;
