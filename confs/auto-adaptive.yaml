@@ -68,6 +68,18 @@ globals:
     initial_value: '0'
 
 number:
+
+-   platform: template
+    id: sg_overheat_offset
+    name: ${sg_overheat_offset_name}
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 0.7
+    min_value: 0.1
+    max_value: 2.5
+    step: 0.1
+    
   - platform: template
     id: maximum_heating_flow_temp
     name: ${maximum_heating_flow_temp}
@@ -252,6 +264,18 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
 
+-   platform: template
+    name: ${sg_mode_off_name}
+    id: switch_sg_mode_off
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true 
+
+  - platform: template
+    name: ${sg_mode_reco_name}
+    id: switch_sg_mode_reco
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+
 binary_sensor:
   - platform: template
     id: status_predictive_boost_active
@@ -262,6 +286,8 @@ binary_sensor:
     status_short_cycle_lockout:
       id: status_short_cycle_lockout
       name: ${status_short_cycle_lockout}
+
+      
 
 button:
   - platform: template
