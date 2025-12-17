@@ -547,8 +547,61 @@ void Optimizer::run_auto_adaptive_loop() {
                 set_flow_temp(final_flow, OptimizerZone::SINGLE);
             }
         }
+ 
     }
-}
+  
+    // INSERER LE CODE CI-DESSOUS JUSTE AVANT LA DERNIERE ACCOLADE DE LA FONCTION
 
+    // ========================================================================
+    // STRATEGIE SMART GRID : PROTECTION SURCHAUFFE ET INERTIE
+    // Source: 
+    // 1. Activation Mode OFF (Coupure Compresseur) si T_Amb > T_Cible + Offset (ex: 0.7°C)
+    // 2. Désactivation Mode OFF si T_Amb <= T_Cible OU T_Retour < 26°C (Calories épuisées)
+    // ========================================================================
+
+    if (this->state_.sg_overheat_offset != nullptr && this->state_.sg_mode_off != nullptr) {
+        
+        // On ne gère cette sécurité que si la PAC est sensée chauffer (ou en pause chauffage)
+        // On évite d'interférer en mode été/clim si non désiré.
+        bool monitoring_active = true; 
+
+        if (monitoring_active) {
+            float offset_val = this->state_.sg_overheat_offset->state; 
+            float current_room = status.Zone1RoomTemperature;
+            float current_target = status.Zone1SetTemperature;
+            float return_temp = status.HpReturnTemperature;
+
+            // Utilisation de la sonde externe si configurée
+            if (this->state_.temperature_feedback_source->active_index().value_or(0) == 1) {
+                 current_room = this->state_.temperature_feedback_z1->state;
+            }
+
+            // Vérification de la validité des données pour éviter des actions sur des valeurs NAN
+            if (!std::isnan(current_room) && !std::isnan(current_target) && !std::isnan(offset_val) && !std::isnan(return_temp)) {
+                
+                // Condition de DÉCLENCHEMENT (Trigger)
+                // Si la température dépasse la cible + 0.7°C 
+                bool condition_trigger_off = current_room > (current_target + offset_val);
+                
+                // Condition de RELÂCHEMENT (Release)
+                // Si la température redescend OU que l'eau du circuit est devenue froide (< 26°C)
+                // < 26°C indique que l'inertie a été transférée aux murs, inutile de circuler à froid.
+                bool condition_release_off = (current_room <= current_target) || (return_temp < 26.0f);
+
+                bool is_off_active = this->state_.sg_mode_off->state;
+
+                if (condition_trigger_off && !is_off_active) {
+                    ESP_LOGW(OPTIMIZER_TAG, "SmartGrid: Surchauffe détectée (Room %.2f > Target %.2f + Offset %.1f). Activation MODE OFF.", 
+                             current_room, current_target, offset_val);
+                    this->state_.sg_mode_off->turn_on();
+                } 
+                else if (condition_release_off && is_off_active) {
+                    ESP_LOGI(OPTIMIZER_TAG, "SmartGrid: Fin de surchauffe ou eau froide (Retour %.1f < 26.0). Désactivation MODE OFF.", return_temp);
+                    this->state_.sg_mode_off->turn_off();
+                }
+            }
+        }
+    }
+} // Fin de run_auto_adaptive_loop
 } // namespace optimizer
 } // namespace esphome
