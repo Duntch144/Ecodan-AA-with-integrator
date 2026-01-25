@@ -14,6 +14,11 @@ namespace esphome
             return this->predictive_short_cycle_total_adjusted_ > 0.0f;
         }
 
+        bool Optimizer::get_sg_energy_available()
+        {
+            return this->state_.sg_energy_available != nullptr && this->state_.sg_energy_available->state;
+        }
+
         void Optimizer::reset_predictive_boost()
         {
             this->predictive_short_cycle_total_adjusted_ = 0.0f;

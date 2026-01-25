@@ -170,6 +170,5 @@ namespace ecodan
     {
         return connected;
     }
-
 } // namespace ecodan
 } // namespace esphome

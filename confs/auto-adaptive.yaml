@@ -2,6 +2,18 @@ substitutions:
   update_interval_minutes: "5min"
   z2_feed_assignment: "state.z2_feed_temp = nullptr;"
 
+mqtt:
+  on_message:
+    - topic: ecodan-heatpump/binary_sensor/auto-adaptive__sg_energy_available/state
+      then:
+        - if:
+            condition:
+              lambda: 'return x == "ON" || x == "1";'
+            then:
+              - switch.turn_on: sg_energy_available
+            else:
+              - switch.turn_off: sg_energy_available
+
 esphome:
   on_boot:
       priority: 600
@@ -45,8 +57,11 @@ esphome:
             state.total_bias_sensor = id(optimizer_total_bias);
             state.target_delta_t_sensor = id(optimizer_target_delta_t);
             state.cold_factor_sensor = id(optimizer_cold_factor);
-
-
+            state.sg_overheat_offset = id(sg_overheat_offset);
+            state.sg_storage_offset = id(sg_storage_offset);     // <--- AJOUT
+            state.sg_mode_off = id(switch_sg_mode_off);
+            state.sg_mode_reco = id(switch_sg_mode_reco);        // <--- AJOUT (déjà présent ?)
+            state.sg_energy_available = id(sg_energy_available); // <--- AJOUT
 
             state.lockout_expiration_timestamp = &id(lockout_expiration_timestamp);
             
@@ -69,7 +84,7 @@ globals:
 
 number:
 
--   platform: template
+  - platform: template
     id: sg_overheat_offset
     name: ${sg_overheat_offset_name}
     unit_of_measurement: "°C"
@@ -78,6 +93,17 @@ number:
     initial_value: 0.7
     min_value: 0.1
     max_value: 2.5
+    step: 0.1
+
+  - platform: template
+    id: sg_storage_offset
+    name: ${sg_storage_offset_name}
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 0.0
+    min_value: -5.0
+    max_value: 5.0
     step: 0.1
     
   - platform: template
@@ -88,7 +114,7 @@ number:
     restore_value: true
     initial_value: 35.0
     min_value: 25.0
-    max_value: 55.0
+    max_value: 60.0
     step: 0.5
   - platform: template
     id: minimum_heating_flow_temp
@@ -109,7 +135,7 @@ number:
     restore_value: true
     initial_value: 35.0
     min_value: 25.0
-    max_value: 55.0
+    max_value: 60.0
     step: 0.5
   - platform: template
     id: minimum_heating_flow_temp_z2
@@ -264,7 +290,7 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
 
--   platform: template
+  - platform: template
     name: ${sg_mode_off_name}
     id: switch_sg_mode_off
     restore_mode: RESTORE_DEFAULT_OFF
@@ -276,18 +302,20 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
     optimistic: true
 
+  - platform: template
+    id: sg_energy_available
+    name: ${sg_energy_available_name}
+    restore_mode: RESTORE_DEFAULT_OFF
+    optimistic: true
+
 binary_sensor:
   - platform: template
     id: status_predictive_boost_active
     name: ${status_predictive_boost_active}
-    lambda: |-
-      return (id(optimizer_ptr) == nullptr) ? false : id(optimizer_ptr)->get_predictive_boost_state();
   - platform: ecodan
     status_short_cycle_lockout:
       id: status_short_cycle_lockout
       name: ${status_short_cycle_lockout}
-
-      
 
 button:
   - platform: template
@@ -298,26 +326,7 @@ button:
           level: INFO
           format: "Lockout script cancelled by button"
       - lambda: id(optimizer_ptr)->restore_svc_state();
-  # - platform: template
-  #   name: 'Auto-Adaptive: Run'
-  #   id: run_auto_adaptive_cycle
-  #   icon: "mdi:play-circle"
-  #   on_press:
-  #     then:
-  #     - lambda: |-
-  #         id(optimizer_ptr)->run_auto_adaptive_loop();
 
-  # - platform: template
-  #   name: "Short-Cycle: Start Compressor (Simulated)"
-  #   on_press:
-  #     - lambda: |-
-  #         id(status_compressor).publish_state(true);
-
-  # - platform: template
-  #   name: "Short-Cycle: Stop Compressor (Simulated)"
-  #   on_press:
-  #     - lambda: |-
-  #         id(status_compressor).publish_state(false);
 interval:
   - interval: ${update_interval_minutes}
     then:
@@ -332,31 +341,31 @@ interval:
 # ✅ NOUVEAU BLOC CAPTEUR  ✅
 # ----------------------------------------
 sensor:
- - platform: template # ⬅️ CHANGEMENT CRUCIAL ICI
-   id: optimizer_total_bias
-   name: ${optimizer_total_bias}
-   unit_of_measurement: "°C"
-   accuracy_decimals: 2
-   device_class: "temperature"
-   state_class: "measurement"
-   force_update: true
-   retain: true 
+  - platform: template # ⬅️ CHANGEMENT CRUCIAL ICI
+    id: optimizer_total_bias
+    name: ${optimizer_total_bias}
+    unit_of_measurement: "°C"
+    accuracy_decimals: 3
+    device_class: "temperature"
+    state_class: "measurement"
+    force_update: true
+    retain: true 
 
- - platform: template
-   id: optimizer_target_delta_t
-   name: ${optimizer_target_delta_t}
-   unit_of_measurement: "°C"
-   accuracy_decimals: 2
-   device_class: "temperature"
-   state_class: "measurement"
-   force_update: true
-   retain: true # Pour la persistance MQTT
+  - platform: template
+    id: optimizer_target_delta_t
+    name: ${optimizer_target_delta_t}
+    unit_of_measurement: "°C"
+    accuracy_decimals: 3
+    device_class: "temperature"
+    state_class: "measurement"
+    force_update: true
+    retain: true # Pour la persistance MQTT
 
- - platform: template
-   id: optimizer_cold_factor
-   name: ${optimizer_cold_factor}
-   unit_of_measurement: "%"
-   accuracy_decimals: 1
-   state_class: "measurement"
-   force_update: true
-   retain: true # Pour la persistance MQTT
+  - platform: template
+    id: optimizer_cold_factor
+    name: ${optimizer_cold_factor}
+    unit_of_measurement: "%"
+    accuracy_decimals: 3
+    state_class: "measurement"
+    force_update: true
+    retain: true # Pour la persistance MQTT

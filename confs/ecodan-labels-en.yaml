@@ -156,8 +156,11 @@ substitutions:
   optimizer_total_bias: 'Auto-Adaptive: Total Setpoint Bias'
   optimizer_target_delta_t: 'Auto-Adaptive: Effective Delta T'
   optimizer_cold_factor: 'Auto-Adaptive: Cold Factor'
-
-  # total increasing energy totals
+  sg_mode_off_name: 'Auto-Adaptive: SG Mode Off'
+  sg_mode_reco_name: 'Auto-Adaptive: SG Mode Reco'
+  sg_overheat_offset_name: 'Auto-Adaptive: SG Overheat Offset'
+  sg_storage_offset_name: 'Auto-Adaptive: SG Storage Offset'
+  sg_energy_available_name: 'Auto-Adaptive: SG Energy Available'
   total_increasing_heating_consumed: Total Heating Consumed
   total_increasing_heating_delivered: Total Heating Delivered
   total_increasing_cool_consumed: Total Cool Consumed
