@@ -418,7 +418,7 @@ void Optimizer::run_auto_adaptive_loop() {
             bool condition_trigger_off = current_room > (current_target + overheat_offset_val) &&
                                         hp_running &&
                                         (status.HpReturnTemperature >= 26.0f) &&
-                                        (std::abs(this->target_delta_t_ - base_min_delta_t) < 0.01f);
+                                        (std::abs(this->target_delta_t_ - base_min_delta_t) < 0.05f);
             
             // Condition to release "OFF" mode: room temperature has returned to the setpoint.
             bool condition_release_off = (current_room <= current_target);
