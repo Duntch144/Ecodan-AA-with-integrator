@@ -18,7 +18,6 @@ using namespace esphome::ecodan;
 Optimizer::Optimizer(OptimizerState state) : state_(state) {
     this->total_bias_sensor_ = state.total_bias_sensor;
     this->target_delta_t_sensor_ = state.target_delta_t_sensor;
-    this->cold_factor_sensor_ = state.cold_factor_sensor;
 
     // Helper lambda to update a state variable and trigger a callback only if the new value has changed significantly.
     auto update_if_changed = [](float &storage, float new_val, auto callback) {
@@ -104,8 +103,6 @@ Optimizer::Optimizer(OptimizerState state) : state_(state) {
  * 
  * @param i Zone index (0 for Zone 1, 1 for Zone 2).
  * @param status The current status report from the Ecodan heat pump.
- * @param cold_factor A normalized value (0-1) indicating how cold it is outside.
- * @param min_delta_cold_limit The minimum Delta-T to use in cold weather.
  * @param base_min_delta_t The absolute minimum Delta-T for the system type.
  * @param max_delta_t The absolute maximum Delta-T for the system type.
  * @param max_error_range The room temperature error range used for scaling the response.
@@ -118,8 +115,6 @@ Optimizer::Optimizer(OptimizerState state) : state_(state) {
 void Optimizer::process_adaptive_zone_(
     std::size_t i,
     const ecodan::Status &status,
-    float cold_factor,
-    float min_delta_cold_limit,
     float base_min_delta_t,
     float max_delta_t,
     float max_error_range,
@@ -220,7 +215,11 @@ void Optimizer::process_adaptive_zone_(
         // where the proportional term alone isn't enough to reach the target.
         // Includes anti-windup logic to prevent the integral from growing excessively large.
         if (is_heating_active || is_cooling_active) {
-            float integration_step = raw_error * INTEGRAL_GAIN;
+            float integral_gain = 0.05f; // default value
+            if (this->state_.integral_gain != nullptr && !std::isnan(this->state_.integral_gain->state)) {
+                integral_gain = this->state_.integral_gain->state;
+            }
+            float integration_step = raw_error * integral_gain;
             bool apply_step = true;
 
             // Don't apply integral correction if the error is already large (deadband).
@@ -238,7 +237,7 @@ void Optimizer::process_adaptive_zone_(
             bool use_linear_error_local = (heating_type_index % 2 != 0);
             float prospective_profile = use_linear_error_local ? prospective_x : prospective_x * prospective_x * (3.0f - 2.0f * prospective_x);
             float prospective_error_factor = prospective_profile * prospective_error_sign;
-            float prospective_dynamic_min_delta_t = base_min_delta_t + (cold_factor * (min_delta_cold_limit - base_min_delta_t));
+            float prospective_dynamic_min_delta_t = base_min_delta_t;
             float prospective_target_delta_t = prospective_dynamic_min_delta_t + prospective_error_factor * (max_delta_t - prospective_dynamic_min_delta_t);
 
             if (prospective_target_delta_t >= (max_delta_t - DELTA_LIMIT_EPS) && integration_step > 0) apply_step = false;
@@ -283,8 +282,8 @@ void Optimizer::process_adaptive_zone_(
     // Use linear or S-curve profile based on heating system type
     float profile = (heating_type_index % 2 != 0) ? x : x * x * (3.0f - 2.0f * x); 
     // Calculate the final target Delta-T
-    float target_delta_t = fmax(base_min_delta_t + (cold_factor * (min_delta_cold_limit - base_min_delta_t)) + (profile * error_sign) * (max_delta_t - (base_min_delta_t + (cold_factor * (min_delta_cold_limit - base_min_delta_t)))), base_min_delta_t);
-    ESP_LOGD(OPTIMIZER_TAG, "Z%d DeltaT: Err=%.3f, Sign=%.1f, X=%.3f, Profile=%.3f, BaseMin=%.1f, ColdFact=%.3f, MinColdLim=%.1f, MaxDT=%.1f, TargetDT=%.3f", (i + 1), error, error_sign, x, profile, base_min_delta_t, cold_factor, min_delta_cold_limit, max_delta_t, target_delta_t);
+    float target_delta_t = fmax(base_min_delta_t + (profile * error_sign) * (max_delta_t - base_min_delta_t), base_min_delta_t);
+    ESP_LOGD(OPTIMIZER_TAG, "Z%d DeltaT: Err=%.3f, Sign=%.1f, X=%.3f, Profile=%.3f, BaseMin=%.1f, MaxDT=%.1f, TargetDT=%.3f", (i + 1), error, error_sign, x, profile, base_min_delta_t, max_delta_t, target_delta_t);
 
     if (i == 0) { // Store and publish the Delta-T for Zone 1
         this->target_delta_t_ = target_delta_t;
@@ -328,26 +327,25 @@ void Optimizer::run_auto_adaptive_loop() {
     if (isnan(this->state_.hp_feed_temp->state) || isnan(actual_outside_temp)) return;
 
     // --- System Type Selection & Parameters ---
-    // Selects a set of parameters (min/max Delta-T, etc.) based on the configured
-    // type of heating system (e.g., underfloor, radiators).
+    // Selects a set of parameters (min/max Delta-T, etc.)
     auto heating_type_index = this->state_.heating_system_type->active_index().value_or(0);
-    float base_min_delta_t, max_delta_t, max_error_range, min_delta_cold_limit;
+    float base_min_delta_t, max_delta_t, max_error_range;
 
-    if (heating_type_index <= 1) { // Underfloor
-        base_min_delta_t = 2.3f; min_delta_cold_limit = 4.0f; max_delta_t = 8.0f; max_error_range = 2.0f; 
-    } else if (heating_type_index <= 3) { // Radiators
-        base_min_delta_t = 3.0f; min_delta_cold_limit = 5.0f; max_delta_t = 8.0f; max_error_range = 2.0f; 
-    } else { // Fan Coils
-        base_min_delta_t = 2.9f; min_delta_cold_limit = 8.0f; max_delta_t = 11.0f; max_error_range = 3.0f; 
+    // Default values, can be overridden by user settings from Home Assistant
+    base_min_delta_t = 3.0f; 
+    max_delta_t = 8.0f; 
+    max_error_range = 2.0f;
+
+    // Override with user settings if available
+    if (this->state_.base_min_delta_t != nullptr && !std::isnan(this->state_.base_min_delta_t->state)) {
+        base_min_delta_t = this->state_.base_min_delta_t->state;
+    }
+    if (this->state_.max_delta_t != nullptr && !std::isnan(this->state_.max_delta_t->state)) {
+        max_delta_t = this->state_.max_delta_t->state;
+        if (max_delta_t <= base_min_delta_t) max_delta_t = base_min_delta_t + 2.0f;
     }
 
-    // Calculate a "cold factor" based on the outside temperature. This factor is used
-    // to dynamically adjust the minimum Delta-T, increasing it in colder weather.
-    float cold_factor = (15.0f - std::clamp(actual_outside_temp, -10.0f, 15.0f)) / 25.0f;
-    this->cold_factor_ = cold_factor;
-    if (this->cold_factor_sensor_ != nullptr) this->cold_factor_sensor_->publish_state(this->cold_factor_);
-
-    ESP_LOGD(OPTIMIZER_TAG, "Cycle Start: Outside %.1f°C, Cold Factor %.2f, Mode Index %d", actual_outside_temp, cold_factor, heating_type_index);
+    ESP_LOGD(OPTIMIZER_TAG, "Cycle Start: Outside %.1f°C, Mode Index %d", actual_outside_temp, heating_type_index);
 
     float calculated_flows_heat[2] = {0.0f, 0.0f};
     float calculated_flows_cool[2] = {100.0f, 100.0f};
@@ -356,7 +354,7 @@ void Optimizer::run_auto_adaptive_loop() {
     // --- Main Zone Processing Loop ---
     // Iterate through each zone and call the processing function to calculate its target flow temp.
     for (std::size_t i = 0; i < max_zones; i++) {
-        this->process_adaptive_zone_(i, status, cold_factor, min_delta_cold_limit, base_min_delta_t, max_delta_t, max_error_range, actual_outside_temp, 
+        this->process_adaptive_zone_(i, status, base_min_delta_t, max_delta_t, max_error_range, actual_outside_temp, 
             (i == 0) ? this->state_.maximum_heating_flow_temp->state : this->state_.maximum_heating_flow_temp_z2->state,
             (i == 0) ? this->state_.minimum_heating_flow_temp->state : this->state_.minimum_heating_flow_temp_z2->state,
             calculated_flows_heat[i], calculated_flows_cool[i]);

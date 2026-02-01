@@ -55,7 +55,9 @@ namespace esphome
       esphome::sensor::Sensor *operation_mode;
       esphome::sensor::Sensor *total_bias_sensor{nullptr};
       esphome::sensor::Sensor *target_delta_t_sensor{nullptr};
-      esphome::sensor::Sensor *cold_factor_sensor{nullptr};
+      esphome::number::Number *base_min_delta_t{nullptr};
+      esphome::number::Number *max_delta_t{nullptr};
+      esphome::number::Number *integral_gain{nullptr};
 
       esphome::select::Select *heating_system_type;
       esphome::select::Select *temperature_feedback_source;
@@ -101,18 +103,13 @@ namespace esphome
       esphome::ESPPreferenceObject integral_pref_;
       float last_saved_integral_{NAN};
       float target_delta_t_{0.0f}; // Variable pour stocker la valeur de Delta T
-      float cold_factor_{0.0f};    // Variable pour stocker la valeur du Cold Factor
       float total_bias_{NAN};
 
       esphome::sensor::Sensor *total_bias_sensor_{nullptr};
       esphome::sensor::Sensor *target_delta_t_sensor_{nullptr};
-      esphome::sensor::Sensor *cold_factor_sensor_{nullptr};
 
 
 
-      // Constantes pour l'intégrateur (à ajuster selon la réactivité voulue)
-      // Ki : Vitesse de correction. 0.05 signifie qu'on corrige de 0.05°C par cycle pour 1°C d'erreur.
-      static constexpr float INTEGRAL_GAIN = 0.05f; 
       // Max Bias : Limite pour éviter l'anti-windup (emballement)
       static constexpr float MAX_INTEGRAL_BIAS = 3.0f;
 
@@ -131,8 +128,6 @@ namespace esphome
       void process_adaptive_zone_(
           std::size_t i,
           const ecodan::Status &status,
-          float cold_factor,
-          float min_delta_cold_limit,
           float base_min_delta_t,
           float max_delta_t,
           float max_error_range,

@@ -56,7 +56,9 @@ esphome:
             state.predictive_short_cycle_high_delta_threshold = id(predictive_short_cycle_high_delta_threshold);
             state.total_bias_sensor = id(optimizer_total_bias);
             state.target_delta_t_sensor = id(optimizer_target_delta_t);
-            state.cold_factor_sensor = id(optimizer_cold_factor);
+            state.base_min_delta_t = id(base_min_delta_t);
+            state.max_delta_t = id(max_delta_t);
+            state.integral_gain = id(integral_gain);
             state.sg_overheat_offset = id(sg_overheat_offset);
             state.sg_storage_offset = id(sg_storage_offset);     // <--- AJOUT
             state.sg_mode_off = id(switch_sg_mode_off);
@@ -229,6 +231,39 @@ number:
     max_value: 3.0
     step: 0.5
 
+  - platform: template
+    id: base_min_delta_t
+    name: ${base_min_delta_t_name}
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 3.0
+    min_value: 1.0
+    max_value: 5.0
+    step: 0.1
+
+  - platform: template
+    id: max_delta_t
+    name: ${max_delta_t_name}
+    unit_of_measurement: "°C"
+    optimistic: true
+    restore_value: true
+    initial_value: 8.0
+    min_value: 5.0
+    max_value: 15.0
+    step: 0.5
+
+  - platform: template
+    id: integral_gain
+    name: ${integral_gain_name}
+    unit_of_measurement: ""
+    optimistic: true
+    restore_value: true
+    initial_value: 0.05
+    min_value: 0.0
+    max_value: 0.2
+    step: 0.01
+
 select:
   - platform: template
     id: temperature_feedback_source
@@ -246,13 +281,9 @@ select:
     optimistic: true
     restore_value: true
     options:
-      - "${heating_system_type_option_ufh}"
-      - "${heating_system_type_option_ufh} *"
-      - "${heating_system_type_option_ufh_rad}"
-      - "${heating_system_type_option_ufh_rad} *"
-      - "${heating_system_type_option_rad}" 
-      - "${heating_system_type_option_rad} *"
-    initial_option: "${heating_system_type_option_ufh}"
+      - "${heating_profile_option_s_curve}"
+      - "${heating_profile_option_linear}"
+    initial_option: "${heating_profile_option_s_curve}"
 
   - platform: template
     id: lockout_duration
@@ -357,15 +388,6 @@ sensor:
     unit_of_measurement: "°C"
     accuracy_decimals: 3
     device_class: "temperature"
-    state_class: "measurement"
-    force_update: true
-    retain: true # Pour la persistance MQTT
-
-  - platform: template
-    id: optimizer_cold_factor
-    name: ${optimizer_cold_factor}
-    unit_of_measurement: "%"
-    accuracy_decimals: 3
     state_class: "measurement"
     force_update: true
     retain: true # Pour la persistance MQTT
