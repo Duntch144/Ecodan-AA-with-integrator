@@ -44,20 +44,18 @@ The profile is chosen via the `heating_system_type` parameter, by selecting the 
 
 ### The "Setpoint Bias"
 
-The `auto_adaptive_setpoint_bias` parameter allows you to manually apply a "bias" to the temperature setpoint. This is a powerful tool for proactive adjustments:
-- **Anticipating cold:** Apply a +0.5°C bias a few hours before a cold snap to slightly pre-heat the house.
-- **Compensating for solar gain:** On a very sunny day, apply a negative bias (-1.0°C) to reduce heating and let the sun do the work.
+The `auto_adaptive_setpoint_bias` parameter allows you to manually apply a "bias" to the temperature setpoint.
 
 ### "Smart Grid" Logic
 
-This optional feature allows interaction with external signals (like surplus solar production) for intelligent energy management.
+This optional feature allows interaction with external signals (like surplus solar production) for intelligent energy management. The `sg_mode_reco` and `sg_mode_off` switches are exposed to Home Assistant. They serve as signals for automations to activate the corresponding physical inputs (IN11 and IN12) on the heat pump, thus enabling its native smart grid capabilities.
 
 - **Recommendation Mode (Energy Storage):**
     - **Condition:** An external switch (`sg_energy_available`) indicates a surplus of energy.
     - **Action:** The system activates a "recommendation" mode (`sg_mode_reco`) which aims to slightly overheat the house to store this free energy in the building's thermal mass. The limit for this overheating is defined by `sg_storage_offset`.
 
 - **OFF Mode (Overheat Protection):**
-    - **Condition:** The room temperature exceeds the setpoint by several degrees (defined by `sg_overheat_offset`), the return water is already warm, and the heating demand is minimal.
+    - **Condition:** The room temperature exceeds the setpoint by an adjustable value (defined by `sg_overheat_offset`), the return water is already warm, and the heating demand is minimal.
     - **Action:** The system forces the compressor to shut down (`sg_mode_off`) to prevent uncomfortable overheating and energy waste. The compressor is automatically re-enabled when the temperature returns to normal.
 
 ## Configuration Parameters
@@ -70,7 +68,7 @@ All parameters are adjustable in real-time from the Home Assistant interface.
 - **`Auto-Adaptive: Setpoint Bias`:** Allows for manual correction of the setpoint (see above).
 - **`Max. / Min. Heating Flow Temperature`:** High and low safety limits for the flow water temperature. The algorithm will never exceed these values.
 - **`Base Min Delta T` / `Max Delta T`:** Defines the working range (in °C) for the `Target Delta-T`.
-- **`Integral Gain`:** Adjusts the aggressiveness of the PID's Integral term. A higher value will correct long-term errors faster but can potentially create instability.
+- **`Integral Gain`:** Adjusts the aggressiveness of the PID's Integral term. The default value is 0.05. This should be reduced for high-inertia systems (e.g., underfloor heating) to prevent overshoot and instability. A higher value will correct long-term errors faster on responsive systems.
 - **`SG Overheat Offset` / `SG Storage Offset`:** Adjusts the thresholds in °C for the Smart Grid logic.
 - **`SG Energy Available` / `SG Mode Off` / `SG Mode Reco`:** Switches for integration with the Smart Grid logic.
 
@@ -78,6 +76,8 @@ All parameters are adjustable in real-time from the Home Assistant interface.
 
 1.  **Configure the temperature source:** Via `temperature_feedback_source`, choose whether you are using the heat pump's sensor or a more accurate external sensor.
 2.  **Set the safety temperatures:** Adjust `maximum_heating_flow_temp` and `minimum_heating_flow_temp` to reasonable and safe values for your system.
-3.  **Choose the heating profile:** Select the `heating_system_type` that best matches your installation.
-4.  **Enable control:** Turn the `auto_adaptive_control_enabled` switch to ON.
-5.  **Monitor and adjust:** Observe the system's behavior. You can monitor the `Target Delta T` and `Total Bias` sensors to understand the algorithm's decisions. If necessary, adjust the gains or biases to fine-tune comfort.
+3.  **Set Delta-T range:** Adjust `Base Min Delta T` and `Max Delta T`. The minimum should be based on your observation of the system's lowest stable Delta T. The maximum should then be set to approximately 4 times the minimum value to cover the heat pump's full operating range.
+4.  **Choose the heating profile:** Select the `heating_system_type` that best matches your installation.
+5.  **Tune Integral Gain:** Start with the default `Integral Gain` of 0.05. For high-inertia systems (e.g., underfloor heating), you may need to reduce this value to prevent temperature overshooting the setpoint.
+6.  **Enable control:** Turn the `auto_adaptive_control_enabled` switch to ON.
+7.  **Monitor and adjust:** Observe the system's behavior. You can monitor the `Target Delta T` and `Total Bias` sensors to understand the algorithm's decisions. If necessary, adjust the other gains or biases to fine-tune comfort.
