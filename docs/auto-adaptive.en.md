@@ -2,7 +2,7 @@
 
 This document describes how the "Auto-Adaptive" control mode for the Ecodan heat pump works. This feature aims to optimize comfort and energy efficiency by dynamically adjusting the heating water temperature based on the actual needs of your home.
 
-The algorithm is based on a **Delta-T control** principle driven by a **PID controller**, which allows for finer and more responsive regulation than a simple thermostat or a basic weather compensation curve.
+The algorithm is based on a **Delta-T control** principle defined by Gekkekoe driven by a **PID controller**, which allows for finer and more responsive regulation than a simple thermostat or a basic weather compensation curve.
 
 **Important Note:** For this mode to work correctly, the heat pump must be set to **"Fixed Flow Temperature"** mode for heating.
 
@@ -38,7 +38,7 @@ The way the temperature error is converted into a Delta-T depends on the selecte
 
 - **Responsive Profile / Linear:** Recommended for low-inertia systems like **radiators**. The response is directly proportional to the error, allowing for a faster temperature rise.
 
-The profile is chosen via the `heating_system_type` parameter, by selecting the option with or without a `*`.
+The profile is chosen via the `heating_system_type`
 
 ## Advanced Features
 
@@ -74,7 +74,7 @@ All parameters are adjustable in real-time from the Home Assistant interface.
 
 ## Getting Started
 
-1.  **Configure the temperature source:** Via `temperature_feedback_source`, choose whether you are using the heat pump's sensor or a more accurate external sensor.
+1**Configure the temperature source:** Via `temperature_feedback_source`, choose whether you are using the heat pump's sensor or a more accurate external sensor. For best performance, use a sensor with a resolution of 0.1°C or 0.2°C. A sensor with a 0.5°C resolution (like the main remote controller) will introduce correction delays, which can be detrimental to comfort and stability.
 2.  **Set the safety temperatures:** Adjust `maximum_heating_flow_temp` and `minimum_heating_flow_temp` to reasonable and safe values for your system.
 3.  **Set Delta-T range:** Adjust `Base Min Delta T` and `Max Delta T`. The minimum should be based on your observation of the system's lowest stable Delta T. The maximum should then be set to approximately 4 times the minimum value to cover the heat pump's full operating range.
 4.  **Choose the heating profile:** Select the `heating_system_type` that best matches your installation.
