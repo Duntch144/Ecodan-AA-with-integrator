@@ -74,7 +74,7 @@ All parameters are adjustable in real-time from the Home Assistant interface.
 
 ## Getting Started
 
-1**Configure the temperature source:** Via `temperature_feedback_source`, choose whether you are using the heat pump's sensor or a more accurate external sensor. For best performance, use a sensor with a resolution of 0.1°C or 0.2°C. A sensor with a 0.5°C resolution (like the main remote controller) will introduce correction delays, which can be detrimental to comfort and stability.
+1.  **Configure the temperature source:** Via `temperature_feedback_source`, choose whether you are using the heat pump's sensor or a more accurate external sensor. For best performance, use a sensor with a resolution of 0.1°C or 0.2°C. A sensor with a 0.5°C resolution (like the main remote controller) will introduce correction delays, which can be detrimental to comfort and stability.
 2.  **Set the safety temperatures:** Adjust `maximum_heating_flow_temp` and `minimum_heating_flow_temp` to reasonable and safe values for your system.
 3.  **Set Delta-T range:** Adjust `Base Min Delta T` and `Max Delta T`. The minimum should be based on your observation of the system's lowest stable Delta T. The maximum should then be set to approximately 4 times the minimum value to cover the heat pump's full operating range.
 4.  **Choose the heating profile:** Select the `heating_system_type` that best matches your installation.
